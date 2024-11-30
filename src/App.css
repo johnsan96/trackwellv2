@@ -1,42 +1,171 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+ 
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+a:hover {
+  color: #535bf2;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+body {
+  margin: 0;
+ 
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
   }
-  to {
-    transform: rotate(360deg);
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
+/*  For App.tsx */
 
-.card {
+.Finance {
+  background-color: #4d6bdd; /* Blaues Hintergrund */
   padding: 2em;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%; /* Breite für kleinere Bildschirme */
+  max-width: 700px; /* Maximale Breite für größere Bildschirme */
+  border-radius: 10px; /* Abgerundete Ecken */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Schatten */
 }
 
-.read-the-docs {
-  color: #888;
+/* Fixierte Überschrift */
+.Finance h2 {
+position: sticky; /* Sticky-Position */
+top: 0; /* Bleibt am oberen Rand des Containers */
+background-color: #4d6bdd; /* Hintergrundfarbe gleich wie der Container */
+padding: 1rem;
+z-index: 10; /* Überlappt andere Inhalte */
+text-align: center;
+border-bottom: 2px solid white; /* Optional: Grenze für besseres Styling */
+color: #ffffff
+}
+
+/* Trennlinie unter H3 */
+.section-heading {
+  position: relative;
+  padding-bottom: 10px; /* Abstand zwischen Text und Linie */
+  margin-bottom: 20px; /* Abstand zur nächsten Sektion */
+  color: #ffffff; /* Textfarbe */
+  font-weight: bold; /* Fett für mehr Lesbarkeit */
+}
+
+.section-heading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px; /* Höhe der Trennlinie */
+  background-color: #ffffff; /* Farbe der Linie */
+  opacity: 0.7; /* Leichte Transparenz */
+}
+
+hr {
+  border: none; /* Entfernt Standardumrandung */
+  height: 2px; /* Höhe der Linie */
+  background-color: #ffffff; /* Farbe der Linie */
+  margin: 20px 0; /* Abstand oben und unten */
+  opacity: 0.7; /* Transparenz */
+}
+
+@media (max-width: 768px) {
+  .Finance {
+      width: 90%; /* 90% der Breite auf kleinen Bildschirmen */
+      padding: 2em; /* Weniger Innenabstand */
+      border-radius: 5px; /* Weniger abgerundete Ecken */
+  }
+}
+
+
+h3,
+p,
+h2,
+li,
+label {
+color: #ffffff;
+}
+
+.forms {
+gap: 10px;
+margin-top: 2rem;
+}
+
+.forms .form {
+border: solid 2px black;
+padding: 5px;
+display: flex;
+flex-direction: column;
+gap: 5px;
+margin-top: 5px;
+}
+
+.form button {
+}
+
+.delete-button {
+font-size: 12px; /* Kleinere Schrift */
+padding: 2px 5px; /* Weniger Padding */
+background-color: black; /* Rote Hintergrundfarbe */
+color: white; /* Weiße Schriftfarbe */
+border: none; /* Keine Umrandung */
+border-radius: 3px; /* Abgerundete Ecken */
+cursor: pointer; /* Zeiger als Cursor */
+margin-right: 5px;
+}
+
+.delete-button:hover {
+background-color: darkred; /* Farbe beim Hover-Effekt */
+}
+
+ul {
+list-style-type: none;
 }
