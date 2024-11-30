@@ -200,243 +200,261 @@ function App() {
   }, []);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center', // Zentriert horizontal
-        alignItems: 'center', // Zentriert vertikal
-        minHeight: '100vh', // Volle Höhe des Viewports
-        backgroundColor: '#f0f4f8', // Hintergrundfarbe der App
-        margin: 0,
-      }}
-    >
-      <div className="Finance">
-        <>
-          {/**
+    <>
+      <div
+        style={{
+          position: "absolute",
+          top: "10px", // Abstand vom oberen Rand
+          right: "10px", // Abstand vom rechten Rand
+          backgroundColor: "orange", // Hintergrundfarbe des Badges
+          color: "white", // Textfarbe
+          padding: "5px 10px", // Innenabstand
+          borderRadius: "5px", // Abgerundete Ecken
+          fontWeight: "bold", // Fettschrift
+          zIndex: 1000, // Überlagert andere Elemente
+          fontSize: "12px", // Schriftgröße
+        }}
+      >
+        Open Alpha - Testversion
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center', // Zentriert horizontal
+          alignItems: 'center', // Zentriert vertikal
+          minHeight: '100vh', // Volle Höhe des Viewports
+          backgroundColor: '#f0f4f8', // Hintergrundfarbe der App
+          margin: 0,
+        }}
+      >
+        <div className="Finance">
+          <>
+            {/**
              * 
              *    <p style={{ color: 'black' }}>{currentUser?.uid}</p>
           
                   <div className='text-2xl font-bold pt-14'>Hello {currentUser?.displayName ? currentUser.displayName : currentUser?.email}, you are now logged in.</div>
              */}
-        </>
+          </>
 
-        <h2>Trackwell - Easy & Fast Money-Tracking</h2>
-        {/*      <p>Zuletzt aktualisiert: {date}</p> */}
-        <div>
-          <label data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title={"Kontostand beschreibt den Betrag, der aktuell auf deinem Bankkonto (z. B. Girokonto, Tagesgeld) verfügbar ist oder auch den Betrag, den du gerade zu Hause hast."}
-            style={{ cursor: "pointer" }}>Kontostand (geändert am: {date}):</label>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <button
-              onClick={() => {
-                const newBalance = -balance;
-                setBalance(newBalance);
-                const currentDate = new Date().toLocaleString(); // Aktuelles Datum und Uhrzeit
-                localStorage.setItem('balance', newBalance.toString());
-                localStorage.setItem('balanceDate', currentDate); // Datum speichern
-                setDate(currentDate); // Datum aktualisieren
-              }}
-              style={{
-                padding: "4px 8px",
-                fontSize: "12px",
-                cursor: "pointer",
-              }}
-            >
-              ±
-            </button>
-            <input
-              type="number"
-              value={balance}
-              onChange={(e) => {
-                const newBalance = parseFloat(e.target.value);
-                if (!isNaN(newBalance)) {
+          <h2>Trackwell - Easy & Fast Money-Tracking</h2>
+          {/*      <p>Zuletzt aktualisiert: {date}</p> */}
+          <div>
+            <label data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title={"Kontostand beschreibt den Betrag, der aktuell auf deinem Bankkonto (z. B. Girokonto, Tagesgeld) verfügbar ist oder auch den Betrag, den du gerade zu Hause hast."}
+              style={{ cursor: "pointer" }}>Kontostand (geändert am: {date}):</label>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                onClick={() => {
+                  const newBalance = -balance;
                   setBalance(newBalance);
                   const currentDate = new Date().toLocaleString(); // Aktuelles Datum und Uhrzeit
                   localStorage.setItem('balance', newBalance.toString());
                   localStorage.setItem('balanceDate', currentDate); // Datum speichern
                   setDate(currentDate); // Datum aktualisieren
-                }
-              }}
-              style={{ flex: 1 }}
-            />
-          </div>
-          {/* Datum anzeigen */}
-          {/*   <p style={{ marginTop: "10px", fontSize: "12px", color: "gray" }}>
+                }}
+                style={{
+                  padding: "4px 8px",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                }}
+              >
+                ±
+              </button>
+              <input
+                type="number"
+                value={balance}
+                onChange={(e) => {
+                  const newBalance = parseFloat(e.target.value);
+                  if (!isNaN(newBalance)) {
+                    setBalance(newBalance);
+                    const currentDate = new Date().toLocaleString(); // Aktuelles Datum und Uhrzeit
+                    localStorage.setItem('balance', newBalance.toString());
+                    localStorage.setItem('balanceDate', currentDate); // Datum speichern
+                    setDate(currentDate); // Datum aktualisieren
+                  }
+                }}
+                style={{ flex: 1 }}
+              />
+            </div>
+            {/* Datum anzeigen */}
+            {/*   <p style={{ marginTop: "10px", fontSize: "12px", color: "gray" }}>
                     Letzte Änderung: {date}
                 </p> */}
-        </div>
+          </div>
 
 
-        <FormFinance
-          incomeName={incomeName}
-          expenseName={expenseName}
-          incomeAmount={incomeAmount}
-          expenseAmount={expenseAmount}
-          setIncomeName={setIncomeName}
-          setIncomeAmount={setIncomeAmount}
-          addIncome={addIncome}
-          setExpenseName={setExpenseName}
-          setExpenseAmount={setExpenseAmount}
-          addExpense={addExpense}
+          <FormFinance
+            incomeName={incomeName}
+            expenseName={expenseName}
+            incomeAmount={incomeAmount}
+            expenseAmount={expenseAmount}
+            setIncomeName={setIncomeName}
+            setIncomeAmount={setIncomeAmount}
+            addIncome={addIncome}
+            setExpenseName={setExpenseName}
+            setExpenseAmount={setExpenseAmount}
+            addExpense={addExpense}
 
-          // Neue Props für voraussichtliche Einträge
-          potentialIncomeName={potentialIncomeName}
-          potentialExpenseName={potentialExpenseName}
-          potentialIncomeAmount={potentialIncomeAmount}
-          potentialExpenseAmount={potentialExpenseAmount}
-          setPotentialIncomeName={setPotentialIncomeName}
-          setPotentialIncomeAmount={setPotentialIncomeAmount}
-          addPotentialIncome={addPotentialIncome}
-          setPotentialExpenseName={setPotentialExpenseName}
-          setPotentialExpenseAmount={setPotentialExpenseAmount}
-          addPotentialExpense={addPotentialExpense}
-        />
+            // Neue Props für voraussichtliche Einträge
+            potentialIncomeName={potentialIncomeName}
+            potentialExpenseName={potentialExpenseName}
+            potentialIncomeAmount={potentialIncomeAmount}
+            potentialExpenseAmount={potentialExpenseAmount}
+            setPotentialIncomeName={setPotentialIncomeName}
+            setPotentialIncomeAmount={setPotentialIncomeAmount}
+            addPotentialIncome={addPotentialIncome}
+            setPotentialExpenseName={setPotentialExpenseName}
+            setPotentialExpenseAmount={setPotentialExpenseAmount}
+            addPotentialExpense={addPotentialExpense}
+          />
 
-        <h3 className="section-heading mt-3">Einnahmen</h3>
-        <ul>
-          {incomes.map((income, index) => (
-            <li key={index}>
-              <button onClick={() => deleteIncome(index)} className='delete-button'>x</button>
-              {income.name}: {income.amount}€
-            </li>
-          ))}
-        </ul>
+          <h3 className="section-heading mt-3">Einnahmen</h3>
+          <ul>
+            {incomes.map((income, index) => (
+              <li key={index}>
+                <button onClick={() => deleteIncome(index)} className='delete-button'>x</button>
+                {income.name}: {income.amount}€
+              </li>
+            ))}
+          </ul>
 
-        <h3 className="section-heading">Ausgaben</h3>
-        <ul>
-          {expenses.map((expense, index) => (
-            <li key={index}>
-              <button onClick={() => deleteExpense(index)} className='delete-button'>x</button>
-              {expense.name}: {expense.amount}€
-            </li>
-          ))}
-        </ul>
+          <h3 className="section-heading">Ausgaben</h3>
+          <ul>
+            {expenses.map((expense, index) => (
+              <li key={index}>
+                <button onClick={() => deleteExpense(index)} className='delete-button'>x</button>
+                {expense.name}: {expense.amount}€
+              </li>
+            ))}
+          </ul>
 
-        <button
-          onClick={() => setShowPotentials(!showPotentials)} // Umschalten
-          style={{
-            marginTop: '3px',
-            backgroundColor: '#dcdcdc',
-            color: 'black',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-          }}
-        >
-          {showPotentials ? 'Geplante Ein-/Ausgaben ausblenden' : 'Geplante Ein-/Ausgaben anzeigen'}
-        </button>
-
-
-        {showPotentials && (
-          <>
-            <h3 className="section-heading mt-3">Geplante Einnahmen</h3>
-            <ul>
-              {potentialIncomes.map((income, index) => (
-
-                <li key={index}>
-                  <button onClick={() => deletePotentialIncome(index)} className="delete-button">x</button>
-                  {income.name}: {income.amount}€
-                  <button
-                    onClick={() => movePotentialIncomeToIncome(index)}
-                    style={{
-                      marginLeft: "10px",
-                      backgroundColor: "green",
-                      color: "white",
-                      padding: "5px 10px",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    In Einnahmen verschieben
-                  </button>
-
-                </li>
-              ))}
-            </ul>
-
-            <h3 className="section-heading">Geplante Ausgaben</h3>
-            <ul>
-              {potentialExpenses.map((expense, index) => (
-                <li key={index}>
-                  <button onClick={() => deletePotentialExpense(index)} className="delete-button">x</button>
-                  {expense.name}: {expense.amount}€
-                  <button
-                    onClick={() => movePotentialExpenseToExpense(index)}
-                    style={{
-                      marginLeft: "10px",
-                      backgroundColor: "green",
-                      color: "white",
-                      padding: "5px 10px",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    In Ausgaben verschieben
-                  </button>
-
-                </li>
-              ))}
-            </ul>
-
-
-          </>
-        )}
-
-        {/*   <hr /> */}
-        <div
-          style={{
-            backgroundColor: "black", // Schwarzer Hintergrund
-            color: "white",           // Standard-Textfarbe
-            padding: "20px",          // Innenabstand
-            borderRadius: "10px",     // Abgerundete Ecken
-            marginTop: "20px",        // Abstand nach oben
-          }}
-        >
-          <h3
+          <button
+            onClick={() => setShowPotentials(!showPotentials)} // Umschalten
             style={{
-              marginBottom: "10px",
-              color: remainingBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
+              marginTop: '3px',
+              backgroundColor: '#dcdcdc',
+              color: 'black',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
             }}
           >
-            Neuer Kontostand: {remainingBalance}€
-          </h3>
+            {showPotentials ? 'Geplante Ein-/Ausgaben ausblenden' : 'Geplante Ein-/Ausgaben anzeigen'}
+          </button>
+
 
           {showPotentials && (
+            <>
+              <h3 className="section-heading mt-3">Geplante Einnahmen</h3>
+              <ul>
+                {potentialIncomes.map((income, index) => (
+
+                  <li key={index}>
+                    <button onClick={() => deletePotentialIncome(index)} className="delete-button">x</button>
+                    {income.name}: {income.amount}€
+                    <button
+                      onClick={() => movePotentialIncomeToIncome(index)}
+                      style={{
+                        marginLeft: "10px",
+                        backgroundColor: "green",
+                        color: "white",
+                        padding: "5px 10px",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      In Einnahmen verschieben
+                    </button>
+
+                  </li>
+                ))}
+              </ul>
+
+              <h3 className="section-heading">Geplante Ausgaben</h3>
+              <ul>
+                {potentialExpenses.map((expense, index) => (
+                  <li key={index}>
+                    <button onClick={() => deletePotentialExpense(index)} className="delete-button">x</button>
+                    {expense.name}: {expense.amount}€
+                    <button
+                      onClick={() => movePotentialExpenseToExpense(index)}
+                      style={{
+                        marginLeft: "10px",
+                        backgroundColor: "green",
+                        color: "white",
+                        padding: "5px 10px",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      In Ausgaben verschieben
+                    </button>
+
+                  </li>
+                ))}
+              </ul>
+
+
+            </>
+          )}
+
+          {/*   <hr /> */}
+          <div
+            style={{
+              backgroundColor: "black", // Schwarzer Hintergrund
+              color: "white",           // Standard-Textfarbe
+              padding: "20px",          // Innenabstand
+              borderRadius: "10px",     // Abgerundete Ecken
+              marginTop: "20px",        // Abstand nach oben
+            }}
+          >
             <h3
               style={{
                 marginBottom: "10px",
-                color: projectedBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
+                color: remainingBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
               }}
             >
-              Voraussichtlicher Kontostand: {projectedBalance}€
+              Neuer Kontostand: {remainingBalance}€
             </h3>
-          )}
-        </div>
 
-        <button
-          onClick={clearAllData}
-          style={{
-            marginTop: "10px",
-            backgroundColor: "red",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Alles löschen
-        </button>
+            {showPotentials && (
+              <h3
+                style={{
+                  marginBottom: "10px",
+                  color: projectedBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
+                }}
+              >
+                Voraussichtlicher Kontostand: {projectedBalance}€
+              </h3>
+            )}
+          </div>
 
-        {/*   <button onClick={handleSignOut} style={{ marginTop: '20px', backgroundColor: 'red', color: 'white', marginLeft: '20px' }}>
+          <button
+            onClick={clearAllData}
+            style={{
+              marginTop: "10px",
+              backgroundColor: "red",
+              color: "white",
+              padding: "10px 20px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Alles löschen
+          </button>
+
+          {/*   <button onClick={handleSignOut} style={{ marginTop: '20px', backgroundColor: 'red', color: 'white', marginLeft: '20px' }}>
                 Abmelden
             </button> */}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
