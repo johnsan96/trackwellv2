@@ -264,19 +264,27 @@ function App() {
               </button>
               <input
                 type="number"
-                value={balance}
+                value={balance === 0 ? "" : balance} // Zeige ein leeres Feld, wenn der Wert 0 ist
                 onChange={(e) => {
-                  const newBalance = parseFloat(e.target.value);
+                  const inputValue = e.target.value;
+                  if (inputValue === "") {
+                    setBalance(0); // Setze auf 0, wenn das Eingabefeld leer ist
+                    localStorage.setItem("balance", "0");
+                    return;
+                  }
+
+                  const newBalance = parseFloat(inputValue);
                   if (!isNaN(newBalance)) {
                     setBalance(newBalance);
                     const currentDate = new Date().toLocaleString(); // Aktuelles Datum und Uhrzeit
-                    localStorage.setItem('balance', newBalance.toString());
-                    localStorage.setItem('balanceDate', currentDate); // Datum speichern
+                    localStorage.setItem("balance", newBalance.toString());
+                    localStorage.setItem("balanceDate", currentDate); // Datum speichern
                     setDate(currentDate); // Datum aktualisieren
                   }
                 }}
                 style={{ flex: 1 }}
               />
+
             </div>
             {/* Datum anzeigen */}
             {/*   <p style={{ marginTop: "10px", fontSize: "12px", color: "gray" }}>
