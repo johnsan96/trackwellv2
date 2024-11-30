@@ -148,9 +148,6 @@ gap: 5px;
 margin-top: 5px;
 }
 
-.form button {
-}
-
 .delete-button {
 font-size: 12px; /* Kleinere Schrift */
 padding: 2px 5px; /* Weniger Padding */
@@ -168,4 +165,71 @@ background-color: darkred; /* Farbe beim Hover-Effekt */
 
 ul {
 list-style-type: none;
+}
+
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 2em; /* Reduziert bei Tablets */
+  }
+  h2 {
+    font-size: 1.8em;
+  }
+  h3 {
+    font-size: 1.4em;
+  }
+  label {
+    font-size: 0.9em; /* Kleinere Labels */
+  }
+}
+
+@media (max-width: 768px) {
+  .Finance {
+    width: 90%;
+    padding: 1.5em;
+    border-radius: 5px;
+  }
+
+  h1 {
+    font-size: 1.8em; /* Reduziert für Smartphones */
+  }
+  h2 {
+    font-size: 1.5em;
+  }
+  h3 {
+    font-size: 1.2em;
+  }
+
+  button {
+    padding: 0.5em 1em;
+    font-size: 0.9em; /* Kleinere Buttons */
+  }
+
+  label {
+    font-size: 0.85em;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5em !important;
+  }
+  h2 {
+    font-size: 1.2em !important;
+  }
+  h3 {
+    font-size: 1em !important;
+  }
+
+  button {
+    padding: 0.4em 0.8em !important;
+    font-size: 0.8em !important;
+  }
+
+  label {
+    font-size: 0.8em;
+  }
+
+  .Finance {
+    padding: 1em;
+  }
 }

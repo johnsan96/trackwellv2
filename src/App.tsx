@@ -437,7 +437,7 @@ function App() {
                   color: projectedBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
                 }}
               >
-                Voraussichtlicher Kontostand: {projectedBalance}€
+                Prognostizierter Kontostand: {projectedBalance}€
               </h3>
             )}
           </div>
@@ -460,8 +460,24 @@ function App() {
           {/*   <button onClick={handleSignOut} style={{ marginTop: '20px', backgroundColor: 'red', color: 'white', marginLeft: '20px' }}>
                 Abmelden
             </button> */}
+
+
         </div>
       </div>
+
+      <footer
+        className='footer'
+        style={{
+          position: "fixed",
+          bottom: "10px",
+          right: "10px",
+          fontStyle: "italic",
+          fontSize: "12px",
+          color: "gray",
+        }}
+      >
+        Entwickelt von johnsan96
+      </footer>
     </>
   );
 }
