@@ -375,7 +375,7 @@ function App() {
                         cursor: "pointer",
                       }}
                     >
-                      In Einnahmen verschieben
+                      Zu Einnahmen
                     </button>
 
                   </li>
@@ -392,7 +392,7 @@ function App() {
                       onClick={() => movePotentialExpenseToExpense(index)}
                       style={{
                         marginLeft: "10px",
-                        backgroundColor: "green",
+                        backgroundColor: "red",
                         color: "white",
                         padding: "5px 10px",
                         border: "none",
@@ -400,7 +400,7 @@ function App() {
                         cursor: "pointer",
                       }}
                     >
-                      In Ausgaben verschieben
+                      Zu Ausgaben
                     </button>
 
                   </li>
