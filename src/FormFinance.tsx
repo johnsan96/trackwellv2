@@ -1,4 +1,6 @@
 import React from "react";
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface finance {
     incomeName: string;
@@ -110,6 +112,8 @@ export default function FormFinance({
                             }}
                         >
                             {showPotentials ? "Geplante Ein-/Ausgaben" : "Geplante Ein-/Ausgaben hinzufügen"}
+
+                            {showPotentials ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                         </button>
                     </div>
                     {/* Voraussichtliche Einnahmen/Ausgaben */}

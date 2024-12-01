@@ -8,6 +8,10 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
+import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 interface Transaction {
   name: string;
   amount: number;
@@ -238,6 +242,7 @@ function App() {
           </>
 
           <h2>Trackwell - Easy & Fast Money-Tracking</h2>
+
           {/*      <p>Zuletzt aktualisiert: {date}</p> */}
           <div>
             <label data-bs-toggle="tooltip"
@@ -264,6 +269,7 @@ function App() {
               </button>
               <input
                 type="number"
+                placeholder="Betrag eingeben"
                 value={balance === 0 ? "" : balance} // Zeige ein leeres Feld, wenn der Wert 0 ist
                 onChange={(e) => {
                   const inputValue = e.target.value;
@@ -322,7 +328,7 @@ function App() {
           <ul>
             {incomes.map((income, index) => (
               <li key={index}>
-                <button onClick={() => deleteIncome(index)} className='delete-button'>x</button>
+                <button onClick={() => deleteIncome(index)} className='delete-button'>  <DeleteIcon /></button>
                 {income.name}: {income.amount}€
               </li>
             ))}
@@ -332,7 +338,7 @@ function App() {
           <ul>
             {expenses.map((expense, index) => (
               <li key={index}>
-                <button onClick={() => deleteExpense(index)} className='delete-button'>x</button>
+                <button onClick={() => deleteExpense(index)} className='delete-button'>  <DeleteIcon /></button>
                 {expense.name}: {expense.amount}€
               </li>
             ))}
@@ -351,6 +357,9 @@ function App() {
             }}
           >
             {showPotentials ? 'Geplante Ein-/Ausgaben ausblenden' : 'Geplante Ein-/Ausgaben anzeigen'}
+
+            {showPotentials ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+
           </button>
 
 
@@ -361,7 +370,7 @@ function App() {
                 {potentialIncomes.map((income, index) => (
 
                   <li key={index}>
-                    <button onClick={() => deletePotentialIncome(index)} className="delete-button">x</button>
+                    <button onClick={() => deletePotentialIncome(index)} className="delete-button">  <DeleteIcon /></button>
                     {income.name}: {income.amount}€
                     <button
                       onClick={() => movePotentialIncomeToIncome(index)}
@@ -386,7 +395,7 @@ function App() {
               <ul>
                 {potentialExpenses.map((expense, index) => (
                   <li key={index}>
-                    <button onClick={() => deletePotentialExpense(index)} className="delete-button">x</button>
+                    <button onClick={() => deletePotentialExpense(index)} className="delete-button">  <DeleteIcon /></button>
                     {expense.name}: {expense.amount}€
                     <button
                       onClick={() => movePotentialExpenseToExpense(index)}
@@ -424,6 +433,7 @@ function App() {
             <h3
               style={{
                 marginBottom: "10px",
+                fontSize: "21px",
                 color: remainingBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
               }}
             >
@@ -434,6 +444,7 @@ function App() {
               <h3
                 style={{
                   marginBottom: "10px",
+                  fontSize: "21px",
                   color: projectedBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
                 }}
               >
@@ -446,13 +457,15 @@ function App() {
             onClick={clearAllData}
             style={{
               marginTop: "10px",
-              backgroundColor: "red",
-              color: "white",
+              backgroundColor: "#d32f2f",
+              color: "#ffffff",
               padding: "10px 20px",
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
             }}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#b71c1c")}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#d32f2f")}
           >
             Alles löschen
           </button>

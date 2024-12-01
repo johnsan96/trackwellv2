@@ -96,6 +96,7 @@ color: #ffffff
   margin-bottom: 20px; /* Abstand zur nächsten Sektion */
   color: #ffffff; /* Textfarbe */
   font-weight: bold; /* Fett für mehr Lesbarkeit */
+  font-size: 19px;
 }
 
 .section-heading::after {
@@ -175,6 +176,9 @@ ul li {
   align-items: center; /* Zentriert Inhalte vertikal */
   gap: 10px; /* Abstand zwischen den Elementen im Listeneintrag */
   margin-bottom: 5px; /* Abstand zwischen den Listeneinträgen */
+  font-size: 19px;
+  font-weight: 600;
+  font-style: oblique;
 }
 
 
@@ -238,6 +242,10 @@ ul li {
 
   label {
     font-size: 0.8em;
+  }
+
+  ul li {
+    font-size: 17px
   }
 
   .Finance {
