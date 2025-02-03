@@ -5,16 +5,18 @@ import { Tooltip } from 'bootstrap';
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import VisibilityIcon from '@mui/icons-material/Visibility'; // Neues Icon für sichtbare/unsichtbare Zustände
 
+// Transaktions-Interface – optional erweitern wir geplante Einträge um ein hidden-Flag
 interface Transaction {
   name: string;
   amount: number;
+  hidden?: boolean; // Nur für geplante Einträge relevant
 }
 
 function App() {
@@ -40,10 +42,6 @@ function App() {
 
   const [showPotentials, setShowPotentials] = useState<boolean>(false);
   const [date, setDate] = useState<string>(new Date().toLocaleDateString());
-
-  /*     const { currentUser } = useAuth() */
-
-  /*     const navigate = useNavigate(); */
 
   useEffect(() => {
     const storedBalance = localStorage.getItem('balance');
@@ -87,10 +85,10 @@ function App() {
     }
   };
 
-  // Hinzufügen von voraussichtlichen Einnahmen/Ausgaben
+  // Hinzufügen von voraussichtlichen Einnahmen/Ausgaben mit hidden-Flag (standardmäßig false)
   const addPotentialExpense = () => {
     if (potentialExpenseName && potentialExpenseAmount) {
-      const newExpense = { name: potentialExpenseName, amount: parseFloat(potentialExpenseAmount) };
+      const newExpense: Transaction = { name: potentialExpenseName, amount: parseFloat(potentialExpenseAmount), hidden: false };
       const updatedExpenses = [...potentialExpenses, newExpense];
       setPotentialExpenses(updatedExpenses);
       localStorage.setItem('potentialExpenses', JSON.stringify(updatedExpenses));
@@ -101,7 +99,7 @@ function App() {
 
   const addPotentialIncome = () => {
     if (potentialIncomeName && potentialIncomeAmount) {
-      const newIncome = { name: potentialIncomeName, amount: parseFloat(potentialIncomeAmount) };
+      const newIncome: Transaction = { name: potentialIncomeName, amount: parseFloat(potentialIncomeAmount), hidden: false };
       const updatedIncomes = [...potentialIncomes, newIncome];
       setPotentialIncomes(updatedIncomes);
       localStorage.setItem('potentialIncomes', JSON.stringify(updatedIncomes));
@@ -167,30 +165,40 @@ function App() {
     localStorage.setItem('potentialExpenses', JSON.stringify(updatedExpenses));
   };
 
-  /*  const handleSignOut = async () => {
-       try {
-           await doSignOut();
-           navigate('/login'); // Weiterleitung zur Login-Seite
-       } catch (error) {
-           console.error('Fehler beim Abmelden:', error);
-       }
-   }; */
+  // Neue Toggle-Funktion für geplante Einnahmen
+  const togglePotentialIncomeVisibility = (index: number) => {
+    const updatedPotentialIncomes = [...potentialIncomes];
+    updatedPotentialIncomes[index].hidden = !updatedPotentialIncomes[index].hidden;
+    setPotentialIncomes(updatedPotentialIncomes);
+    localStorage.setItem('potentialIncomes', JSON.stringify(updatedPotentialIncomes));
+  };
 
-  // alte Berechnung
-  /*   const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
-    const totalIncomes = incomes.reduce((total, income) => total + income.amount, 0);
-    const remainingBalance = Math.round((balance + totalIncomes - totalExpenses) * 100) / 100; */
+  // Neue Toggle-Funktion für geplante Ausgaben
+  const togglePotentialExpenseVisibility = (index: number) => {
+    const updatedPotentialExpenses = [...potentialExpenses];
+    updatedPotentialExpenses[index].hidden = !updatedPotentialExpenses[index].hidden;
+    setPotentialExpenses(updatedPotentialExpenses);
+    localStorage.setItem('potentialExpenses', JSON.stringify(updatedPotentialExpenses));
+  };
 
-  // neue Berechnung
-  // Berechnungen
+  // Berechnung des Basis-Kontostands (bereits vorhanden)
   const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
   const totalIncomes = incomes.reduce((total, income) => total + income.amount, 0);
-
-  const potentialExpenseTotal = potentialExpenses.reduce((total, expense) => total + expense.amount, 0);
-  const potentialIncomeTotal = potentialIncomes.reduce((total, income) => total + income.amount, 0);
-
   const remainingBalance = Math.round((balance + totalIncomes - totalExpenses) * 100) / 100;
-  const projectedBalance = Math.round((remainingBalance + potentialIncomeTotal - potentialExpenseTotal) * 100) / 100;
+
+  // Nur sichtbare geplante Einnahmen und Ausgaben berücksichtigen:
+  const potentialIncomeEffect = potentialIncomes.reduce(
+    (sum, income) => sum + (income.hidden ? 0 : income.amount),
+    0
+  );
+  const potentialExpenseEffect = potentialExpenses.reduce(
+    (sum, expense) => sum + (expense.hidden ? 0 : expense.amount),
+    0
+  );
+
+  // Für den prognostizierten Kontostand: Einnahmen addieren, Ausgaben subtrahieren
+  const projectedBalance = Math.round((remainingBalance + potentialIncomeEffect - potentialExpenseEffect) * 100) / 100;
+
 
   useEffect(() => {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -208,15 +216,15 @@ function App() {
       <div
         style={{
           position: "absolute",
-          top: "10px", // Abstand vom oberen Rand
-          right: "10px", // Abstand vom rechten Rand
-          backgroundColor: "orange", // Hintergrundfarbe des Badges
-          color: "white", // Textfarbe
-          padding: "5px 10px", // Innenabstand
-          borderRadius: "5px", // Abgerundete Ecken
-          fontWeight: "bold", // Fettschrift
-          zIndex: 1000, // Überlagert andere Elemente
-          fontSize: "12px", // Schriftgröße
+          top: "10px",
+          right: "10px",
+          backgroundColor: "orange",
+          color: "white",
+          padding: "5px 10px",
+          borderRadius: "5px",
+          fontWeight: "bold",
+          zIndex: 1000,
+          fontSize: "12px",
         }}
       >
         Open Alpha - Testversion
@@ -224,26 +232,16 @@ function App() {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'center', // Zentriert horizontal
-          alignItems: 'center', // Zentriert vertikal
-          minHeight: '100vh', // Volle Höhe des Viewports
-          backgroundColor: '#f0f4f8', // Hintergrundfarbe der App
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          backgroundColor: '#f0f4f8',
           margin: 0,
         }}
       >
         <div className="Finance">
-          <>
-            {/**
-             * 
-             *    <p style={{ color: 'black' }}>{currentUser?.uid}</p>
-          
-                  <div className='text-2xl font-bold pt-14'>Hello {currentUser?.displayName ? currentUser.displayName : currentUser?.email}, you are now logged in.</div>
-             */}
-          </>
-
           <h2>Trackwell - Easy & Fast Money-Tracking</h2>
 
-          {/*      <p>Zuletzt aktualisiert: {date}</p> */}
           <div>
             <label data-bs-toggle="tooltip"
               data-bs-placement="top"
@@ -254,10 +252,10 @@ function App() {
                 onClick={() => {
                   const newBalance = -balance;
                   setBalance(newBalance);
-                  const currentDate = new Date().toLocaleString(); // Aktuelles Datum und Uhrzeit
+                  const currentDate = new Date().toLocaleString();
                   localStorage.setItem('balance', newBalance.toString());
-                  localStorage.setItem('balanceDate', currentDate); // Datum speichern
-                  setDate(currentDate); // Datum aktualisieren
+                  localStorage.setItem('balanceDate', currentDate);
+                  setDate(currentDate);
                 }}
                 style={{
                   padding: "4px 8px",
@@ -270,34 +268,27 @@ function App() {
               <input
                 type="number"
                 placeholder="Betrag eingeben"
-                value={balance === 0 ? "" : balance} // Zeige ein leeres Feld, wenn der Wert 0 ist
+                value={balance === 0 ? "" : balance}
                 onChange={(e) => {
                   const inputValue = e.target.value;
                   if (inputValue === "") {
-                    setBalance(0); // Setze auf 0, wenn das Eingabefeld leer ist
+                    setBalance(0);
                     localStorage.setItem("balance", "0");
                     return;
                   }
-
                   const newBalance = parseFloat(inputValue);
                   if (!isNaN(newBalance)) {
                     setBalance(newBalance);
-                    const currentDate = new Date().toLocaleString(); // Aktuelles Datum und Uhrzeit
+                    const currentDate = new Date().toLocaleString();
                     localStorage.setItem("balance", newBalance.toString());
-                    localStorage.setItem("balanceDate", currentDate); // Datum speichern
-                    setDate(currentDate); // Datum aktualisieren
+                    localStorage.setItem("balanceDate", currentDate);
+                    setDate(currentDate);
                   }
                 }}
                 style={{ flex: 1 }}
               />
-
             </div>
-            {/* Datum anzeigen */}
-            {/*   <p style={{ marginTop: "10px", fontSize: "12px", color: "gray" }}>
-                    Letzte Änderung: {date}
-                </p> */}
           </div>
-
 
           <FormFinance
             incomeName={incomeName}
@@ -310,8 +301,6 @@ function App() {
             setExpenseName={setExpenseName}
             setExpenseAmount={setExpenseAmount}
             addExpense={addExpense}
-
-            // Neue Props für voraussichtliche Einträge
             potentialIncomeName={potentialIncomeName}
             potentialExpenseName={potentialExpenseName}
             potentialIncomeAmount={potentialIncomeAmount}
@@ -328,7 +317,9 @@ function App() {
           <ul>
             {incomes.map((income, index) => (
               <li key={index}>
-                <button onClick={() => deleteIncome(index)} className='delete-button'>  <DeleteIcon /></button>
+                <button onClick={() => deleteIncome(index)} className='delete-button'>
+                  <DeleteIcon />
+                </button>
                 {income.name}: {income.amount}€
               </li>
             ))}
@@ -338,14 +329,16 @@ function App() {
           <ul>
             {expenses.map((expense, index) => (
               <li key={index}>
-                <button onClick={() => deleteExpense(index)} className='delete-button'>  <DeleteIcon /></button>
+                <button onClick={() => deleteExpense(index)} className='delete-button'>
+                  <DeleteIcon />
+                </button>
                 {expense.name}: {expense.amount}€
               </li>
             ))}
           </ul>
 
           <button
-            onClick={() => setShowPotentials(!showPotentials)} // Umschalten
+            onClick={() => setShowPotentials(!showPotentials)}
             style={{
               marginTop: '3px',
               backgroundColor: '#dcdcdc',
@@ -357,20 +350,22 @@ function App() {
             }}
           >
             {showPotentials ? 'Geplante Ein-/Ausgaben ausblenden' : 'Geplante Ein-/Ausgaben anzeigen'}
-
             {showPotentials ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-
           </button>
-
 
           {showPotentials && (
             <>
               <h3 className="section-heading mt-3">Geplante Einnahmen</h3>
               <ul>
                 {potentialIncomes.map((income, index) => (
-
-                  <li key={index}>
-                    <button onClick={() => deletePotentialIncome(index)} className="delete-button">  <DeleteIcon /></button>
+                  <li key={index} style={{ color: income.hidden ? 'grey' : 'inherit' }}>
+                    <button onClick={() => deletePotentialIncome(index)} className="delete-button">
+                      <DeleteIcon />
+                    </button>
+                    {/* Toggle-Button: Wenn hidden, dann VisibilityIcon anzeigen, sonst VisibilityOffIcon */}
+                    <button onClick={() => togglePotentialIncomeVisibility(index)} className="delete-button">
+                      {income.hidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    </button>
                     {income.name}: {income.amount}€
                     <button
                       onClick={() => movePotentialIncomeToIncome(index)}
@@ -386,7 +381,6 @@ function App() {
                     >
                       Zu Einnahmen
                     </button>
-
                   </li>
                 ))}
               </ul>
@@ -394,8 +388,14 @@ function App() {
               <h3 className="section-heading">Geplante Ausgaben</h3>
               <ul>
                 {potentialExpenses.map((expense, index) => (
-                  <li key={index}>
-                    <button onClick={() => deletePotentialExpense(index)} className="delete-button">  <DeleteIcon /></button>
+                  <li key={index} style={{ color: expense.hidden ? 'grey' : 'inherit' }}>
+                    <button onClick={() => deletePotentialExpense(index)} className="delete-button">
+                      <DeleteIcon />
+                    </button>
+                    {/* Toggle-Button für Ausgaben */}
+                    <button onClick={() => togglePotentialExpenseVisibility(index)} className="delete-button">
+                      {expense.hidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    </button>
                     {expense.name}: {expense.amount}€
                     <button
                       onClick={() => movePotentialExpenseToExpense(index)}
@@ -411,30 +411,26 @@ function App() {
                     >
                       Zu Ausgaben
                     </button>
-
                   </li>
                 ))}
               </ul>
-
-
             </>
           )}
 
-          {/*   <hr /> */}
           <div
             style={{
-              backgroundColor: "black", // Schwarzer Hintergrund
-              color: "white",           // Standard-Textfarbe
-              padding: "20px",          // Innenabstand
-              borderRadius: "10px",     // Abgerundete Ecken
-              marginTop: "20px",        // Abstand nach oben
+              backgroundColor: "black",
+              color: "white",
+              padding: "20px",
+              borderRadius: "10px",
+              marginTop: "20px",
             }}
           >
             <h3
               style={{
                 marginBottom: "10px",
                 fontSize: "21px",
-                color: remainingBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
+                color: remainingBalance < 0 ? "red" : "white",
               }}
             >
               Neuer Kontostand: {remainingBalance}€
@@ -445,7 +441,7 @@ function App() {
                 style={{
                   marginBottom: "10px",
                   fontSize: "21px",
-                  color: projectedBalance < 0 ? "red" : "white", // Rot, wenn negativ; Weiß, wenn positiv
+                  color: projectedBalance < 0 ? "red" : "white",
                 }}
               >
                 Prognostizierter Kontostand: {projectedBalance}€
@@ -454,7 +450,11 @@ function App() {
           </div>
 
           <button
-            onClick={clearAllData}
+            onClick={() => {
+              if (window.confirm("Bist du dir sicher, dass du wirklich ALLES löschen möchtest?")) {
+                clearAllData();
+              }
+            }}
             style={{
               marginTop: "10px",
               backgroundColor: "#d32f2f",
@@ -469,16 +469,10 @@ function App() {
           >
             Alles löschen
           </button>
-
-          {/*   <button onClick={handleSignOut} style={{ marginTop: '20px', backgroundColor: 'red', color: 'white', marginLeft: '20px' }}>
-                Abmelden
-            </button> */}
-
-
         </div>
       </div>
 
-      <footer
+     {/*  <footer
         className='footer'
         style={{
           position: "fixed",
@@ -490,7 +484,7 @@ function App() {
         }}
       >
         Entwickelt von johnsan96
-      </footer>
+      </footer> */}
     </>
   );
 }
