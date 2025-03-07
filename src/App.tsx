@@ -206,7 +206,7 @@ function App() {
       try {
         new Tooltip(tooltipTriggerEl); // Tooltip instanziieren
       } catch (error) {
-        console.error('Tooltip konnte nicht initialisiert werden:', error);
+        console.error('Tooltip konnte nicht test initialisiert werden:', error);
       }
     });
   }, []);
