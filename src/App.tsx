@@ -11,6 +11,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility'; // Neues Icon für sichtbare/unsichtbare Zustände
+import FixedCostsModal from './FixedCostsModal';
 
 // Transaktions-Interface – optional erweitern wir geplante Einträge um ein hidden-Flag
 interface Transaction {
@@ -43,6 +44,9 @@ function App() {
   const [showPotentials, setShowPotentials] = useState<boolean>(false);
   const [date, setDate] = useState<string>(new Date().toLocaleDateString());
 
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     const storedBalance = localStorage.getItem('balance');
     const storedExpenses = localStorage.getItem('expenses');
@@ -63,7 +67,13 @@ function App() {
     if (storedPotentialIncomes) setPotentialIncomes(JSON.parse(storedPotentialIncomes));
   }, []);
 
+/*   useEffect(() => {
+    console.log(expenseName, expenseAmount);
+  }, [expenseName, expenseAmount]); */
+
+
   const addExpense = () => {
+    console.log("addExpense");
     if (expenseName && expenseAmount) {
       const newExpense = { name: expenseName, amount: parseFloat(expenseAmount) };
       const updatedExpenses = [...expenses, newExpense];
@@ -71,6 +81,8 @@ function App() {
       localStorage.setItem('expenses', JSON.stringify(updatedExpenses));
       setExpenseName('');
       setExpenseAmount('');
+    } else {
+      console.log("false ...")
     }
   };
 
@@ -82,6 +94,8 @@ function App() {
       localStorage.setItem('incomes', JSON.stringify(updatedIncomes));
       setIncomeName('');
       setIncomeAmount('');
+    } else {
+      console.log("false ...")
     }
   };
 
@@ -206,7 +220,7 @@ function App() {
       try {
         new Tooltip(tooltipTriggerEl); // Tooltip instanziieren
       } catch (error) {
-        console.error('Tooltip konnte nicht test initialisiert werden:', error);
+        console.error('Tooltip konnte nicht initialisiert werden:', error);
       }
     });
   }, []);
@@ -449,30 +463,44 @@ function App() {
             )}
           </div>
 
-          <button
-            onClick={() => {
-              if (window.confirm("Bist du dir sicher, dass du wirklich ALLES löschen möchtest?")) {
-                clearAllData();
-              }
-            }}
-            style={{
+          <div style={{ display: "flex", justifyContent: " space-between", marginTop: "20px" }}>
+            <button style={{
               marginTop: "10px",
-              backgroundColor: "#d32f2f",
+              backgroundColor: "green",
               color: "#ffffff",
               padding: "10px 20px",
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#b71c1c")}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#d32f2f")}
-          >
-            Alles löschen
-          </button>
+
+            }} onClick={() => setIsModalOpen(true)}>Fixkosten anzeigen</button>
+            <button
+              onClick={() => {
+                if (window.confirm("Bist du dir sicher, dass du wirklich ALLES löschen möchtest?")) {
+                  clearAllData();
+                }
+              }}
+              style={{
+                marginTop: "10px",
+                backgroundColor: "#d32f2f",
+                color: "#ffffff",
+                padding: "10px 20px",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#b71c1c")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#d32f2f")}
+            >
+              Alles löschen
+            </button>
+          </div>
+          <FixedCostsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddExpense={addExpense} setExpenseName={setExpenseName} setExpenseAmount={setExpenseAmount} />
+
         </div>
       </div>
 
-     {/*  <footer
+      {/*  <footer
         className='footer'
         style={{
           position: "fixed",
