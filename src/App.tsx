@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import FormFinance from './FormFinance';
 import { Tooltip } from 'bootstrap';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
 
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 import DeleteIcon from '@mui/icons-material/Delete';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility'; // Neues Icon für sichtbare/unsichtbare Zustände
 import FixedCostsModal from './FixedCostsModal';
@@ -17,8 +22,34 @@ import FixedCostsModal from './FixedCostsModal';
 interface Transaction {
   name: string;
   amount: number;
+  date?: string;
   hidden?: boolean; // Nur für geplante Einträge relevant
 }
+
+type TransactionList = 'incomes' | 'expenses' | 'potentialIncomes' | 'potentialExpenses';
+
+interface EditingTransaction {
+  list: TransactionList;
+  index: number;
+  name: string;
+  amount: string;
+  date: string;
+}
+
+interface ActionMenu {
+  list: TransactionList;
+  index: number;
+  anchorElement: HTMLElement;
+}
+
+const getTodayDate = () => {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${today.getFullYear()}-${month}-${day}`;
+};
+
+const formatDate = (date?: string) => date ? date.split('-').reverse().join('.') : 'Kein Datum';
 
 function App() {
   const [balance, setBalance] = useState<number>(0);
@@ -35,14 +66,19 @@ function App() {
   const [expenseAmount, setExpenseAmount] = useState<string>('');
   const [incomeName, setIncomeName] = useState<string>('');
   const [incomeAmount, setIncomeAmount] = useState<string>('');
+  const [incomeDate, setIncomeDate] = useState<string>(getTodayDate());
+  const [expenseDate, setExpenseDate] = useState<string>(getTodayDate());
 
   const [potentialExpenseName, setPotentialExpenseName] = useState<string>('');
   const [potentialExpenseAmount, setPotentialExpenseAmount] = useState<string>('');
   const [potentialIncomeName, setPotentialIncomeName] = useState<string>('');
   const [potentialIncomeAmount, setPotentialIncomeAmount] = useState<string>('');
+  const [potentialExpenseDate, setPotentialExpenseDate] = useState<string>(getTodayDate());
+  const [potentialIncomeDate, setPotentialIncomeDate] = useState<string>(getTodayDate());
 
   const [showPotentials, setShowPotentials] = useState<boolean>(false);
-  const [date, setDate] = useState<string>(new Date().toLocaleDateString());
+  const [editingTransaction, setEditingTransaction] = useState<EditingTransaction | null>(null);
+  const [actionMenu, setActionMenu] = useState<ActionMenu | null>(null);
 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,12 +111,13 @@ function App() {
   const addExpense = () => {
     console.log("addExpense");
     if (expenseName && expenseAmount) {
-      const newExpense = { name: expenseName, amount: parseFloat(expenseAmount) };
+      const newExpense = { name: expenseName, amount: parseFloat(expenseAmount), date: expenseDate };
       const updatedExpenses = [...expenses, newExpense];
       setExpenses(updatedExpenses);
       localStorage.setItem('expenses', JSON.stringify(updatedExpenses));
       setExpenseName('');
       setExpenseAmount('');
+      setExpenseDate(getTodayDate());
     } else {
       console.log("false ...")
     }
@@ -88,12 +125,13 @@ function App() {
 
   const addIncome = () => {
     if (incomeName && incomeAmount) {
-      const newIncome = { name: incomeName, amount: parseFloat(incomeAmount) };
+      const newIncome = { name: incomeName, amount: parseFloat(incomeAmount), date: incomeDate };
       const updatedIncomes = [...incomes, newIncome];
       setIncomes(updatedIncomes);
       localStorage.setItem('incomes', JSON.stringify(updatedIncomes));
       setIncomeName('');
       setIncomeAmount('');
+      setIncomeDate(getTodayDate());
     } else {
       console.log("false ...")
     }
@@ -102,23 +140,25 @@ function App() {
   // Hinzufügen von voraussichtlichen Einnahmen/Ausgaben mit hidden-Flag (standardmäßig false)
   const addPotentialExpense = () => {
     if (potentialExpenseName && potentialExpenseAmount) {
-      const newExpense: Transaction = { name: potentialExpenseName, amount: parseFloat(potentialExpenseAmount), hidden: false };
+      const newExpense: Transaction = { name: potentialExpenseName, amount: parseFloat(potentialExpenseAmount), date: potentialExpenseDate, hidden: false };
       const updatedExpenses = [...potentialExpenses, newExpense];
       setPotentialExpenses(updatedExpenses);
       localStorage.setItem('potentialExpenses', JSON.stringify(updatedExpenses));
       setPotentialExpenseName('');
       setPotentialExpenseAmount('');
+      setPotentialExpenseDate(getTodayDate());
     }
   };
 
   const addPotentialIncome = () => {
     if (potentialIncomeName && potentialIncomeAmount) {
-      const newIncome: Transaction = { name: potentialIncomeName, amount: parseFloat(potentialIncomeAmount), hidden: false };
+      const newIncome: Transaction = { name: potentialIncomeName, amount: parseFloat(potentialIncomeAmount), date: potentialIncomeDate, hidden: false };
       const updatedIncomes = [...potentialIncomes, newIncome];
       setPotentialIncomes(updatedIncomes);
       localStorage.setItem('potentialIncomes', JSON.stringify(updatedIncomes));
       setPotentialIncomeName('');
       setPotentialIncomeAmount('');
+      setPotentialIncomeDate(getTodayDate());
     }
   };
 
@@ -179,25 +219,112 @@ function App() {
     localStorage.setItem('potentialExpenses', JSON.stringify(updatedExpenses));
   };
 
-  // Neue Toggle-Funktion für geplante Einnahmen
-  const togglePotentialIncomeVisibility = (index: number) => {
-    const updatedPotentialIncomes = [...potentialIncomes];
-    updatedPotentialIncomes[index].hidden = !updatedPotentialIncomes[index].hidden;
-    setPotentialIncomes(updatedPotentialIncomes);
-    localStorage.setItem('potentialIncomes', JSON.stringify(updatedPotentialIncomes));
+  const startEditing = (list: TransactionList, index: number, transaction: Transaction) => {
+    setEditingTransaction({ list, index, name: transaction.name, amount: transaction.amount.toString(), date: transaction.date ?? getTodayDate() });
   };
 
-  // Neue Toggle-Funktion für geplante Ausgaben
-  const togglePotentialExpenseVisibility = (index: number) => {
-    const updatedPotentialExpenses = [...potentialExpenses];
-    updatedPotentialExpenses[index].hidden = !updatedPotentialExpenses[index].hidden;
-    setPotentialExpenses(updatedPotentialExpenses);
-    localStorage.setItem('potentialExpenses', JSON.stringify(updatedPotentialExpenses));
+  const cancelEditing = () => setEditingTransaction(null);
+
+  const saveEditing = () => {
+    if (!editingTransaction) return;
+
+    const name = editingTransaction.name.trim();
+    const amount = Number(editingTransaction.amount);
+    if (!name || !Number.isFinite(amount)) return;
+
+    const updateTransaction = (transactions: Transaction[]) =>
+      transactions.map((transaction, index) =>
+        index === editingTransaction.index ? { ...transaction, name, amount, date: editingTransaction.date } : transaction
+      );
+
+    switch (editingTransaction.list) {
+      case 'incomes': {
+        const updated = updateTransaction(incomes);
+        setIncomes(updated);
+        localStorage.setItem('incomes', JSON.stringify(updated));
+        break;
+      }
+      case 'expenses': {
+        const updated = updateTransaction(expenses);
+        setExpenses(updated);
+        localStorage.setItem('expenses', JSON.stringify(updated));
+        break;
+      }
+      case 'potentialIncomes': {
+        const updated = updateTransaction(potentialIncomes);
+        setPotentialIncomes(updated);
+        localStorage.setItem('potentialIncomes', JSON.stringify(updated));
+        break;
+      }
+      case 'potentialExpenses': {
+        const updated = updateTransaction(potentialExpenses);
+        setPotentialExpenses(updated);
+        localStorage.setItem('potentialExpenses', JSON.stringify(updated));
+        break;
+      }
+    }
+
+    setEditingTransaction(null);
+  };
+
+  const isEditing = (list: TransactionList, index: number) =>
+    editingTransaction?.list === list && editingTransaction.index === index;
+
+  const openActionMenu = (event: React.MouseEvent<HTMLButtonElement>, list: TransactionList, index: number) => {
+    setActionMenu({ list, index, anchorElement: event.currentTarget });
+  };
+
+  const closeActionMenu = () => setActionMenu(null);
+
+  const runMenuAction = (action: () => void) => {
+    action();
+    closeActionMenu();
+  };
+
+  const activeMenuTransaction = actionMenu && (
+    actionMenu.list === 'incomes' ? incomes[actionMenu.index]
+      : actionMenu.list === 'expenses' ? expenses[actionMenu.index]
+        : actionMenu.list === 'potentialIncomes' ? potentialIncomes[actionMenu.index]
+          : potentialExpenses[actionMenu.index]
+  );
+
+  const toggleTransactionVisibility = (list: TransactionList, indexToToggle: number) => {
+    const toggle = (transactions: Transaction[]) =>
+      transactions.map((transaction, index) =>
+        index === indexToToggle ? { ...transaction, hidden: !transaction.hidden } : transaction
+      );
+
+    switch (list) {
+      case 'incomes': {
+        const updated = toggle(incomes);
+        setIncomes(updated);
+        localStorage.setItem('incomes', JSON.stringify(updated));
+        break;
+      }
+      case 'expenses': {
+        const updated = toggle(expenses);
+        setExpenses(updated);
+        localStorage.setItem('expenses', JSON.stringify(updated));
+        break;
+      }
+      case 'potentialIncomes': {
+        const updated = toggle(potentialIncomes);
+        setPotentialIncomes(updated);
+        localStorage.setItem('potentialIncomes', JSON.stringify(updated));
+        break;
+      }
+      case 'potentialExpenses': {
+        const updated = toggle(potentialExpenses);
+        setPotentialExpenses(updated);
+        localStorage.setItem('potentialExpenses', JSON.stringify(updated));
+        break;
+      }
+    }
   };
 
   // Berechnung des Basis-Kontostands (bereits vorhanden)
-  const totalExpenses = expenses.reduce((total, expense) => total + expense.amount, 0);
-  const totalIncomes = incomes.reduce((total, income) => total + income.amount, 0);
+  const totalExpenses = expenses.reduce((total, expense) => total + (expense.hidden ? 0 : expense.amount), 0);
+  const totalIncomes = incomes.reduce((total, income) => total + (income.hidden ? 0 : income.amount), 0);
   const remainingBalance = Math.round((balance + totalIncomes - totalExpenses) * 100) / 100;
 
   // Nur sichtbare geplante Einnahmen und Ausgaben berücksichtigen:
@@ -227,7 +354,7 @@ function App() {
 
   return (
     <>
-      <div
+     {/*  <div
         style={{
           position: "absolute",
           top: "10px",
@@ -242,7 +369,7 @@ function App() {
         }}
       >
         Open Alpha - Testversion
-      </div>
+      </div> */}
       <div
         style={{
           display: 'flex',
@@ -260,7 +387,7 @@ function App() {
             <label data-bs-toggle="tooltip"
               data-bs-placement="top"
               title={"Kontostand beschreibt den Betrag, der aktuell auf deinem Bankkonto (z. B. Girokonto, Tagesgeld) verfügbar ist oder auch den Betrag, den du gerade zu Hause hast."}
-              style={{ cursor: "pointer" }}>Kontostand (geändert am: {date}):</label>
+              style={{ cursor: "pointer" }}>Gib deinen aktuellen Kontostand ein:</label>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <button
                 onClick={() => {
@@ -269,7 +396,6 @@ function App() {
                   const currentDate = new Date().toLocaleString();
                   localStorage.setItem('balance', newBalance.toString());
                   localStorage.setItem('balanceDate', currentDate);
-                  setDate(currentDate);
                 }}
                 style={{
                   padding: "4px 8px",
@@ -296,7 +422,6 @@ function App() {
                     const currentDate = new Date().toLocaleString();
                     localStorage.setItem("balance", newBalance.toString());
                     localStorage.setItem("balanceDate", currentDate);
-                    setDate(currentDate);
                   }
                 }}
                 style={{ flex: 1 }}
@@ -304,37 +429,77 @@ function App() {
             </div>
           </div>
 
+          <div className="transaction-switch" role="tablist" aria-label="Buchungsart auswählen">
+            <button
+              className={!showPotentials ? 'active' : ''}
+              onClick={() => setShowPotentials(false)}
+              role="tab"
+              aria-selected={!showPotentials}
+            >
+              Aktuell
+            </button>
+            <button
+              className={showPotentials ? 'active' : ''}
+              onClick={() => setShowPotentials(true)}
+              role="tab"
+              aria-selected={showPotentials}
+            >
+              Geplant
+            </button>
+          </div>
+
           <FormFinance
+            showPotentials={showPotentials}
             incomeName={incomeName}
             expenseName={expenseName}
             incomeAmount={incomeAmount}
             expenseAmount={expenseAmount}
+            incomeDate={incomeDate}
+            expenseDate={expenseDate}
             setIncomeName={setIncomeName}
             setIncomeAmount={setIncomeAmount}
             addIncome={addIncome}
             setExpenseName={setExpenseName}
             setExpenseAmount={setExpenseAmount}
+            setIncomeDate={setIncomeDate}
+            setExpenseDate={setExpenseDate}
             addExpense={addExpense}
             potentialIncomeName={potentialIncomeName}
             potentialExpenseName={potentialExpenseName}
             potentialIncomeAmount={potentialIncomeAmount}
             potentialExpenseAmount={potentialExpenseAmount}
+            potentialIncomeDate={potentialIncomeDate}
+            potentialExpenseDate={potentialExpenseDate}
             setPotentialIncomeName={setPotentialIncomeName}
             setPotentialIncomeAmount={setPotentialIncomeAmount}
             addPotentialIncome={addPotentialIncome}
             setPotentialExpenseName={setPotentialExpenseName}
             setPotentialExpenseAmount={setPotentialExpenseAmount}
+            setPotentialIncomeDate={setPotentialIncomeDate}
+            setPotentialExpenseDate={setPotentialExpenseDate}
             addPotentialExpense={addPotentialExpense}
           />
 
+          {!showPotentials && (
+            <>
           <h3 className="section-heading mt-3">Einnahmen</h3>
           <ul>
             {incomes.map((income, index) => (
-              <li key={index}>
-                <button onClick={() => deleteIncome(index)} className='delete-button'>
-                  <DeleteIcon />
-                </button>
-                {income.name}: {income.amount}€
+              <li key={index} style={{ color: income.hidden ? 'grey' : 'inherit' }}>
+                {isEditing('incomes', index) ? (
+                  <>
+                    <input aria-label="Name der Einnahme" value={editingTransaction!.name} onChange={(e) => setEditingTransaction({ ...editingTransaction!, name: e.target.value })} />
+                    <input aria-label="Betrag der Einnahme" type="number" step="0.01" value={editingTransaction!.amount} onChange={(e) => setEditingTransaction({ ...editingTransaction!, amount: e.target.value })} />
+                    <input aria-label="Datum der Einnahme" type="date" value={editingTransaction!.date} onChange={(e) => setEditingTransaction({ ...editingTransaction!, date: e.target.value })} />
+                    <button onClick={saveEditing} className="edit-button" aria-label="Einnahme speichern"><SaveIcon /></button>
+                    <button onClick={cancelEditing} className="edit-button" aria-label="Bearbeitung abbrechen"><CloseIcon /></button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={(event) => openActionMenu(event, 'incomes', index)} className="menu-button" aria-label="Aktionen für Einnahme"><MoreVertIcon /></button>
+                    {income.name}: {income.amount}€ · {formatDate(income.date)}
+                  </>
+                )}
               </li>
             ))}
           </ul>
@@ -342,30 +507,26 @@ function App() {
           <h3 className="section-heading">Ausgaben</h3>
           <ul>
             {expenses.map((expense, index) => (
-              <li key={index}>
-                <button onClick={() => deleteExpense(index)} className='delete-button'>
-                  <DeleteIcon />
-                </button>
-                {expense.name}: {expense.amount}€
+              <li key={index} style={{ color: expense.hidden ? 'grey' : 'inherit' }}>
+                {isEditing('expenses', index) ? (
+                  <>
+                    <input aria-label="Name der Ausgabe" value={editingTransaction!.name} onChange={(e) => setEditingTransaction({ ...editingTransaction!, name: e.target.value })} />
+                    <input aria-label="Betrag der Ausgabe" type="number" step="0.01" value={editingTransaction!.amount} onChange={(e) => setEditingTransaction({ ...editingTransaction!, amount: e.target.value })} />
+                    <input aria-label="Datum der Ausgabe" type="date" value={editingTransaction!.date} onChange={(e) => setEditingTransaction({ ...editingTransaction!, date: e.target.value })} />
+                    <button onClick={saveEditing} className="edit-button" aria-label="Ausgabe speichern"><SaveIcon /></button>
+                    <button onClick={cancelEditing} className="edit-button" aria-label="Bearbeitung abbrechen"><CloseIcon /></button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={(event) => openActionMenu(event, 'expenses', index)} className="menu-button" aria-label="Aktionen für Ausgabe"><MoreVertIcon /></button>
+                    {expense.name}: {expense.amount}€ · {formatDate(expense.date)}
+                  </>
+                )}
               </li>
             ))}
           </ul>
-
-          <button
-            onClick={() => setShowPotentials(!showPotentials)}
-            style={{
-              marginTop: '3px',
-              backgroundColor: '#dcdcdc',
-              color: 'black',
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
-          >
-            {showPotentials ? 'Geplante Ein-/Ausgaben ausblenden' : 'Geplante Ein-/Ausgaben anzeigen'}
-            {showPotentials ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </button>
+            </>
+          )}
 
           {showPotentials && (
             <>
@@ -373,28 +534,20 @@ function App() {
               <ul>
                 {potentialIncomes.map((income, index) => (
                   <li key={index} style={{ color: income.hidden ? 'grey' : 'inherit' }}>
-                    <button onClick={() => deletePotentialIncome(index)} className="delete-button">
-                      <DeleteIcon />
-                    </button>
-                    {/* Toggle-Button: Wenn hidden, dann VisibilityIcon anzeigen, sonst VisibilityOffIcon */}
-                    <button onClick={() => togglePotentialIncomeVisibility(index)} className="delete-button">
-                      {income.hidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                    </button>
-                    {income.name}: {income.amount}€
-                    <button
-                      onClick={() => movePotentialIncomeToIncome(index)}
-                      style={{
-                        marginLeft: "10px",
-                        backgroundColor: "green",
-                        color: "white",
-                        padding: "5px 10px",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Zu Einnahmen
-                    </button>
+                    {isEditing('potentialIncomes', index) ? (
+                      <>
+                        <input aria-label="Name der geplanten Einnahme" value={editingTransaction!.name} onChange={(e) => setEditingTransaction({ ...editingTransaction!, name: e.target.value })} />
+                        <input aria-label="Betrag der geplanten Einnahme" type="number" step="0.01" value={editingTransaction!.amount} onChange={(e) => setEditingTransaction({ ...editingTransaction!, amount: e.target.value })} />
+                        <input aria-label="Datum der geplanten Einnahme" type="date" value={editingTransaction!.date} onChange={(e) => setEditingTransaction({ ...editingTransaction!, date: e.target.value })} />
+                        <button onClick={saveEditing} className="edit-button" aria-label="Geplante Einnahme speichern"><SaveIcon /></button>
+                        <button onClick={cancelEditing} className="edit-button" aria-label="Bearbeitung abbrechen"><CloseIcon /></button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={(event) => openActionMenu(event, 'potentialIncomes', index)} className="menu-button" aria-label="Aktionen für geplante Einnahme"><MoreVertIcon /></button>
+                        {income.name}: {income.amount}€ · {formatDate(income.date)}
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -403,28 +556,20 @@ function App() {
               <ul>
                 {potentialExpenses.map((expense, index) => (
                   <li key={index} style={{ color: expense.hidden ? 'grey' : 'inherit' }}>
-                    <button onClick={() => deletePotentialExpense(index)} className="delete-button">
-                      <DeleteIcon />
-                    </button>
-                    {/* Toggle-Button für Ausgaben */}
-                    <button onClick={() => togglePotentialExpenseVisibility(index)} className="delete-button">
-                      {expense.hidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                    </button>
-                    {expense.name}: {expense.amount}€
-                    <button
-                      onClick={() => movePotentialExpenseToExpense(index)}
-                      style={{
-                        marginLeft: "10px",
-                        backgroundColor: "red",
-                        color: "white",
-                        padding: "5px 10px",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Zu Ausgaben
-                    </button>
+                    {isEditing('potentialExpenses', index) ? (
+                      <>
+                        <input aria-label="Name der geplanten Ausgabe" value={editingTransaction!.name} onChange={(e) => setEditingTransaction({ ...editingTransaction!, name: e.target.value })} />
+                        <input aria-label="Betrag der geplanten Ausgabe" type="number" step="0.01" value={editingTransaction!.amount} onChange={(e) => setEditingTransaction({ ...editingTransaction!, amount: e.target.value })} />
+                        <input aria-label="Datum der geplanten Ausgabe" type="date" value={editingTransaction!.date} onChange={(e) => setEditingTransaction({ ...editingTransaction!, date: e.target.value })} />
+                        <button onClick={saveEditing} className="edit-button" aria-label="Geplante Ausgabe speichern"><SaveIcon /></button>
+                        <button onClick={cancelEditing} className="edit-button" aria-label="Bearbeitung abbrechen"><CloseIcon /></button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={(event) => openActionMenu(event, 'potentialExpenses', index)} className="menu-button" aria-label="Aktionen für geplante Ausgabe"><MoreVertIcon /></button>
+                        {expense.name}: {expense.amount}€ · {formatDate(expense.date)}
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -496,6 +641,48 @@ function App() {
             </button>
           </div>
           <FixedCostsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddExpense={addExpense} setExpenseName={setExpenseName} setExpenseAmount={setExpenseAmount} />
+
+          {actionMenu && activeMenuTransaction && (
+            <Menu
+              anchorEl={actionMenu.anchorElement}
+              open
+              onClose={closeActionMenu}
+              slotProps={{ paper: { sx: { minWidth: 210 } } }}
+            >
+              <MenuItem onClick={() => runMenuAction(() => startEditing(actionMenu.list, actionMenu.index, activeMenuTransaction))}>
+                <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+                Bearbeiten
+              </MenuItem>
+              <MenuItem onClick={() => runMenuAction(() => toggleTransactionVisibility(actionMenu.list, actionMenu.index))}>
+                <ListItemIcon>
+                  {activeMenuTransaction.hidden ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+                </ListItemIcon>
+                {activeMenuTransaction.hidden ? 'Sichtbar machen' : 'Ausblenden'}
+              </MenuItem>
+              {actionMenu.list === 'potentialIncomes' && (
+                <MenuItem onClick={() => runMenuAction(() => movePotentialIncomeToIncome(actionMenu.index))}>
+                  Zu Einnahmen verschieben
+                </MenuItem>
+              )}
+              {actionMenu.list === 'potentialExpenses' && (
+                <MenuItem onClick={() => runMenuAction(() => movePotentialExpenseToExpense(actionMenu.index))}>
+                  Zu Ausgaben verschieben
+                </MenuItem>
+              )}
+              <MenuItem
+                onClick={() => runMenuAction(() => {
+                  if (actionMenu.list === 'incomes') deleteIncome(actionMenu.index);
+                  if (actionMenu.list === 'expenses') deleteExpense(actionMenu.index);
+                  if (actionMenu.list === 'potentialIncomes') deletePotentialIncome(actionMenu.index);
+                  if (actionMenu.list === 'potentialExpenses') deletePotentialExpense(actionMenu.index);
+                })}
+                sx={{ color: 'error.main' }}
+              >
+                <ListItemIcon sx={{ color: 'error.main' }}><DeleteIcon fontSize="small" /></ListItemIcon>
+                Entfernen
+              </MenuItem>
+            </Menu>
+          )}
 
         </div>
       </div>

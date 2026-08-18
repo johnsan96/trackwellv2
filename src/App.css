@@ -140,6 +140,28 @@ gap: 10px;
 margin-top: 2rem;
 }
 
+.transaction-switch {
+  display: flex;
+  gap: 4px;
+  margin-top: 20px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.transaction-switch button {
+  flex: 1;
+  padding: 8px 10px;
+  background: transparent;
+  color: white;
+  border: none;
+}
+
+.transaction-switch button.active {
+  background: white;
+  color: #213547;
+}
+
 .forms .form {
 border: solid 2px black;
 padding: 5px;
@@ -148,6 +170,7 @@ flex-direction: column;
 gap: 5px;
 margin-top: 5px;
 }
+
 
 .delete-button {
 font-size: 12px; /* Kleinere Schrift */
@@ -162,6 +185,39 @@ margin-right: 5px;
 
 .delete-button:hover {
 background-color: darkred; /* Farbe beim Hover-Effekt */
+}
+
+.edit-button {
+  font-size: 12px;
+  padding: 3px 6px;
+  background-color: #1d4ed8;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+
+.edit-button:hover {
+  background-color: #1e40af;
+}
+
+.menu-button {
+  margin-right: 2px;
+  padding: 3px 5px;
+  background: transparent;
+  color: inherit;
+  border: none;
+  line-height: 1;
+}
+
+.menu-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: transparent;
+}
+
+ul li input {
+  min-width: 0;
+  max-width: 150px;
+  padding: 4px 6px;
 }
 
 ul {
